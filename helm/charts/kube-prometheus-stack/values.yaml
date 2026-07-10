@@ -1,0 +1,22 @@
+grafana:
+  enabled: true
+
+  service:
+    type: NodePort
+
+
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+
+
+alertmanager:
+  enabled: true
