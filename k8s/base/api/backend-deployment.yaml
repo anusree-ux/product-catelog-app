@@ -18,42 +18,75 @@ spec:
         app: backend
 
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
-      - name: backend
-        image: product-backend:1.0
-        imagePullPolicy: IfNotPresent
+        - name: backend
+          image: product-backend:1.0
+          imagePullPolicy: IfNotPresent
 
-        ports:
-        - containerPort: 5000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
 
-        env:
+          ports:
+            - containerPort: 5000
 
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: product-config
-              key: DB_HOST
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: DB_HOST
 
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: product-config
-              key: DB_PORT
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: DB_PORT
 
-        - name: POSTGRES_DB
-          valueFrom:
-            configMapKeyRef:
-              name: product-config
-              key: POSTGRES_DB
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: product-config
+                  key: POSTGRES_DB
 
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: product-secret
-              key: POSTGRES_USER
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: product-secret
+                  key: POSTGRES_USER
 
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: product-secret
-              key: POSTGRES_PASSWORD
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: product-secret
+                  key: POSTGRES_PASSWORD
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /api/products
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /api/products
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20

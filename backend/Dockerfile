@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-RUN useradd -m appuser
+RUN useradd -u 10001 -m appuser
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY . .
 
 RUN chown -R appuser:appuser /app
 
-USER appuser
+USER 10001
 
 EXPOSE 5000
 
