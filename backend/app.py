@@ -27,14 +27,14 @@ def health():
     }, 200
 
 # Get All Products
-@app.route("/products", methods=["GET"])
+@app.route("/api/products", methods=["GET"])
 def get_products():
     products = Product.query.all()
     return jsonify([product.to_dict() for product in products])
 
 
 # Add Product
-@app.route("/products", methods=["POST"])
+@app.route("/api/products", methods=["POST"])
 def add_product():
     data = request.json
 
@@ -54,7 +54,7 @@ def add_product():
 
 
 # Update Product
-@app.route("/products/<int:id>", methods=["PUT"])
+@app.route("/api/products/<int:id>", methods=["PUT"])
 def update_product(id):
     product = Product.query.get(id)
 
@@ -76,7 +76,7 @@ def update_product(id):
 
 
 # Delete Product
-@app.route("/products/<int:id>", methods=["DELETE"])
+@app.route("/api/products/<int:id>", methods=["DELETE"])
 def delete_product(id):
     product = Product.query.get(id)
 
