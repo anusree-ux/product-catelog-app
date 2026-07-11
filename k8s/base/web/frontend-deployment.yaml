@@ -23,7 +23,7 @@ spec:
 
       containers:
         - name: frontend
-          image: product-frontend:1.0
+          image: product-frontend:latest
           imagePullPolicy: IfNotPresent
 
           securityContext:

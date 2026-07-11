@@ -6,7 +6,9 @@ RUN apt-get update && \
     apt-get install -y \
         curl \
         unzip \
-        docker.io && \
+        docker.io \
+        nodejs \
+        npm && \
     rm -rf /var/lib/apt/lists/*
 
 # kubectl
