@@ -2,9 +2,13 @@ controller:
   image:
     registry: docker.io
     repository: custom-jenkins
-    tag: "1.0"
+    tag: "1.1"
     pullPolicy: IfNotPresent
-
+  
+  volumes:
+    - type: HostPath
+      hostPath: /var/run/docker.sock
+      mountPath: /var/run/docker.sock
   admin:
     username: admin
     password: admin123
