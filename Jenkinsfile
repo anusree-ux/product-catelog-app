@@ -1,6 +1,38 @@
 pipeline {
     agent {
-        label 'built-in'
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  label: jenkins-agent
+spec:
+  containers:
+  - name: node
+    image: node:18-alpine
+    command: ['cat']
+    tty: true
+  - name: docker
+    image: docker:24-cli
+    command: ['cat']
+    tty: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-sock
+  - name: trivy
+    image: aquasec/trivy:latest
+    command: ['cat']
+    tty: true
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command: ['cat']
+    tty: true
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+'''
+        }
     }
 
     environment {
@@ -19,11 +51,13 @@ pipeline {
 
         stage('Lint') {
             steps {
-                sh '''
-                cd frontend
-                npm install
-                npm run lint || echo "Linting issues found but ignoring to let the pipeline run."
-                '''
+                container('node') {
+                    sh '''
+                    cd frontend
+                    npm install
+                    npm run lint || echo "Linting issues found but ignoring to let the pipeline run."
+                    '''
+                }
             }
         }
 
@@ -37,53 +71,63 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh '''
-                docker build -t $BACKEND_IMAGE:$IMAGE_TAG ./backend
-                docker build -t $FRONTEND_IMAGE:$IMAGE_TAG ./frontend
-                '''
+                container('docker') {
+                    sh '''
+                    docker build -t $BACKEND_IMAGE:$IMAGE_TAG ./backend
+                    docker build -t $FRONTEND_IMAGE:$IMAGE_TAG ./frontend
+                    '''
+                }
             }
         }
 
         stage('Security Scan') {
             steps {
-                sh '''
-                trivy image --exit-code 1 --severity CRITICAL $BACKEND_IMAGE:$IMAGE_TAG
-                trivy image --exit-code 1 --severity CRITICAL $FRONTEND_IMAGE:$IMAGE_TAG
-                '''
+                container('trivy') {
+                    sh '''
+                    trivy image --exit-code 1 --severity CRITICAL $BACKEND_IMAGE:$IMAGE_TAG
+                    trivy image --exit-code 1 --severity CRITICAL $FRONTEND_IMAGE:$IMAGE_TAG
+                    '''
+                }
             }
         }
 
         stage('Push Image') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-                    sh '''
-                    echo $PASS | docker login -u $USER --password-stdin
-                    docker push $BACKEND_IMAGE:$IMAGE_TAG
-                    docker push $FRONTEND_IMAGE:$IMAGE_TAG
-                    '''
+                container('docker') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                    )]) {
+                        sh '''
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker push $BACKEND_IMAGE:$IMAGE_TAG
+                        docker push $FRONTEND_IMAGE:$IMAGE_TAG
+                        '''
+                    }
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh '''
-                kubectl set image deployment/backend backend=$BACKEND_IMAGE:$IMAGE_TAG -n product-catalog
-                kubectl set image deployment/frontend frontend=$FRONTEND_IMAGE:$IMAGE_TAG -n product-catalog
-                '''
+                container('kubectl') {
+                    sh '''
+                    kubectl set image deployment/backend backend=$BACKEND_IMAGE:$IMAGE_TAG -n product-catalog
+                    kubectl set image deployment/frontend frontend=$FRONTEND_IMAGE:$IMAGE_TAG -n product-catalog
+                    '''
+                }
             }
         }
 
         stage('Post Deployment Validation') {
             steps {
-                sh '''
-                kubectl rollout status deployment/backend -n product-catalog
-                kubectl rollout status deployment/frontend -n product-catalog
-                '''
+                container('kubectl') {
+                    sh '''
+                    kubectl rollout status deployment/backend -n product-catalog
+                    kubectl rollout status deployment/frontend -n product-catalog
+                    '''
+                }
             }
         }
     }
