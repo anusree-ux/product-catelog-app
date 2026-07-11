@@ -1,5 +1,8 @@
 pipeline {
-    agent any
+    agent {
+        label 'built-in'
+    }
+   
 
     environment {
         DOCKERHUB_USERNAME = "anusree15"
