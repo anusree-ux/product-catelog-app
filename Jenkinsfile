@@ -31,8 +31,8 @@ spec:
     command: ['cat']
     tty: true
   - name: kubectl
-    image: bitnami/kubectl:latest
-    command: ['cat']
+    image: alpine/k8s:1.28.2
+    command: ['sh', '-c', 'sleep 3600']
     tty: true
 '''
         }
