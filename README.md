@@ -32,7 +32,38 @@ cd product-catelog-app
 ---
 
 # 🏗️ Architecture
-
+```text
+                 Developer
+                     │
+                git push
+                     │
+             GitHub Repository
+                     │
+             Jenkins Pipeline
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+ Build Docker Images      Load Images into Kind
+        │                         │
+        └────────────┬────────────┘
+                     │
+          Deploy to Kubernetes
+                     │
+              Kind Cluster (EC2)
+                     │
+             NGINX Ingress
+                     │
+              Frontend Pod
+                     │
+              Backend Pod
+                     │
+              PostgreSQL Pod
+        ─────────────────────────────
+      Prometheus ───► Grafana
+           ▲              ▲
+           │              │
+      Promtail ───► Loki
+```
 ---
 
 # 🛠️ Tech Stack
