@@ -106,6 +106,7 @@ graph TD
     Jenkins -- "2. Vulnerability Scan" --> Trivy
     Jenkins -- "3. Push Images" --> DockerHub
     Jenkins -- "4. Trigger K8s Deploy" --> K8s_Cluster
+```
 ---
 
 # 🛠️ Tech Stack
