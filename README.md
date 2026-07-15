@@ -32,28 +32,80 @@ cd product-catelog-app
 ---
 
 # 🏗️ Architecture
-```text
-                    User
-                      │
-                      ▼
-               NGINX Ingress
-                      │
-        ┌─────────────┴─────────────┐
-        │                           │
-        ▼                           ▼
-Frontend (React + NGINX)      Backend (Flask)
-                                      │
-                                      ▼
-                               PostgreSQL Database
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#E3F2FD', 'edgeLabelBackground':'#FFFFFF', 'tertiaryColor': '#fff'}}}%%
+graph TD
+    %% Define external elements %%
+    User[<i class='fa fa-user'></i> User]
+    GitHub(GitHub Repo)
+    DockerHub[Docker Hub Registry]
 
-Monitoring Stack
-----------------
-Prometheus ──► Grafana
+    %% Define Ingress & Network Layer %%
+    subgraph K8s_Cluster [Kubernetes Cluster / Namespace: product-catalog]
+        Ingress[<i class='fa fa-globe'></i> NGINX Ingress Controller]
+        NetPol1[NetPol: Ingress Rules]
 
-Logging Stack
--------------
-Promtail ──► Loki ──► Grafana
-```
+        %% Define Application Components %%
+        subgraph Frontend_Tier [Frontend Tier]
+            FE_Pod(Frontend Pod: React + NGINX)
+        end
+
+        subgraph Backend_Tier [Backend Tier]
+            BE_Pod(Backend Pod: Flask REST API)
+            NetPol2[NetPol: Backend Access]
+        end
+
+        subgraph Database_Tier [Database Tier]
+            DB_Pod(Database Pod: PostgreSQL 16)
+            PVC[Persistent Volume Claim / Storage]
+            NetPol3[NetPol: DB Access Control]
+        end
+
+        %% Define Logging & Monitoring %%
+        subgraph Monitoring_Log_Tier [Observability Stack / Namespace: monitoring]
+            Promtail_Pod(Promtail Pod / DaemonSet)
+            Loki_Pod(Loki Pod)
+            Prometheus_Pod(Prometheus Pod)
+            Grafana_Pod(Grafana Pod)
+        end
+
+    end
+
+    %% Define Automation & Dev Layer %%
+    subgraph DevOps_Automation [DevOps Pipeline]
+        Jenkins(Jenkins Server)
+        Trivy[Trivy Scanner]
+    end
+
+    %% Define Traffic & Data Flows %%
+    User -- "Traffic via domain product-catalog.local" --> Ingress
+    Ingress -- "Routes based on path: /" --> FE_Pod
+    Ingress -- "Routes based on path: /api" --> BE_Pod
+    FE_Pod -- "Calls API endpoint" --> Ingress
+
+    BE_Pod -- "Stores/Retrieves Data" --> DB_Pod
+    DB_Pod -- "Persists Data" --> PVC
+
+    %% Logging Workflow %%
+    Promtail_Pod -- "Scrapes logs from Pods" --> Loki_Pod
+    Loki_Pod -- "Indexes logs" --> Grafana_Pod
+
+    %% Monitoring Workflow %%
+    Prometheus_Pod -- "Scrapes metrics from Nodes/Pods" --> Grafana_Pod
+    User -- "Views Dashboards" --> Grafana_Pod
+
+    %% Network Security Interactions %%
+    NetPol1 -. Enforces Ingress flow .-> Ingress
+    NetPol2 -. Locks down traffic .-> BE_Pod
+    NetPol3 -. Isolates DB access .-> DB_Pod
+
+    %% CI/CD Workflow %%
+    Jenkins -- "Webhook triggered" --> GitHub
+    GitHub -- "Pull source code" --> Jenkins
+    Jenkins -- "1. Lint, Test, Build" --> Jenkins
+    Jenkins -- "2. Vulnerability Scan" --> Trivy
+    Jenkins -- "3. Push Images" --> DockerHub
+    Jenkins -- "4. Trigger K8s Deploy" --> K8s_Cluster
 ---
 
 # 🛠️ Tech Stack
