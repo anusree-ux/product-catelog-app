@@ -119,8 +119,11 @@ spec:
             steps {
                 container('kubectl') {
                     sh '''
-                    kubectl set image deployment/backend backend=$BACKEND_IMAGE:$IMAGE_TAG -n product-catalog
-                    kubectl set image deployment/frontend frontend=$FRONTEND_IMAGE:$IMAGE_TAG -n product-catalog
+                    cd k8s/overlays/dev
+                    kustomize edit set image \
+                        product-backend=$BACKEND_IMAGE:$IMAGE_TAG \
+                        product-frontend=$FRONTEND_IMAGE:$IMAGE_TAG
+                    kubectl apply -k .
                     '''
                 }
             }

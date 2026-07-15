@@ -40,7 +40,7 @@ kubectl wait \
 --namespace ingress-nginx \
 --for=condition=available \
 deployment/ingress-nginx-controller \
---timeout=180s
+--timeout=300s
 
 
 
@@ -111,12 +111,12 @@ echo "================================="
 
 
 docker build \
--t product-backend:1.0 \
+-t anusree15/product-backend:1.0 \
 ./backend
 
 
 docker build \
--t product-frontend:1.0 \
+-t anusree15/product-frontend:1.0 \
 ./frontend
 
 
@@ -127,12 +127,12 @@ echo "================================="
 
 
 kind load docker-image \
-product-backend:1.0 \
+anusree15/product-backend:1.0 \
 --name $CLUSTER_NAME
 
 
 kind load docker-image \
-product-frontend:1.0 \
+anusree15/product-frontend:1.0 \
 --name $CLUSTER_NAME
 
 
