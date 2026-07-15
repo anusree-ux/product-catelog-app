@@ -154,7 +154,7 @@ echo "================================="
 kubectl rollout status \
 deployment/postgres \
 -n product-catalog \
---timeout=180s
+--timeout=300s
 
 
 
@@ -166,7 +166,7 @@ echo "================================="
 kubectl rollout status \
 deployment/backend \
 -n product-catalog \
---timeout=180s
+--timeout=300s
 
 
 
@@ -178,7 +178,7 @@ echo "================================="
 kubectl rollout status \
 deployment/frontend \
 -n product-catalog \
---timeout=180s
+--timeout=300s
 
 
 
