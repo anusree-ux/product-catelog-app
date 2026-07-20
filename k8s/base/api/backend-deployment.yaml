@@ -4,6 +4,10 @@ kind: Deployment
 metadata:
   name: backend
   namespace: product-catalog
+  labels:
+    app: backend
+    component: api
+    project: product-catalog
 
 spec:
   replicas: 1
@@ -58,36 +62,13 @@ spec:
               cpu: "500m"
               memory: "512Mi"
 
+          envFrom:
+            - configMapRef:
+                name: product-config
+
+            - secretRef:
+                name: product-secret
+
           env:
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: product-config
-                  key: DB_HOST
-
-            - name: DB_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: product-config
-                  key: DB_PORT
-
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: product-config
-                  key: POSTGRES_DB
-
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: product-secret
-                  key: POSTGRES_USER
-
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: product-secret
-                  key: POSTGRES_PASSWORD
-
             - name: DATABASE_URL
               value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(POSTGRES_DB)"
