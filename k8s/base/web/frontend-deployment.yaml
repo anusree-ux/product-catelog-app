@@ -27,7 +27,7 @@ spec:
 
       containers:
         - name: frontend
-          image: anusree15/product-frontend:latest
+          image: product-frontend:1.0
           imagePullPolicy: IfNotPresent
 
           securityContext:

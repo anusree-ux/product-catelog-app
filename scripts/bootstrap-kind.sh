@@ -29,6 +29,7 @@ helm upgrade --install ingress-nginx \
   ingress-nginx/ingress-nginx \
   --namespace ingress-nginx \
   --create-namespace \
+  -f helm/charts/ingress-nginx/values.yaml \
   --set controller.hostPort.enabled=true \
   --set controller.hostPort.ports.http=80 \
   --set controller.hostPort.ports.https=443 \
@@ -65,7 +66,8 @@ echo "Installing Prometheus Stack..."
 helm upgrade --install kube-prometheus-stack \
 prometheus-community/kube-prometheus-stack \
 --namespace monitoring \
---create-namespace
+--create-namespace \
+-f helm/charts/kube-prometheus-stack/values.yaml
 
 
 
@@ -75,7 +77,8 @@ kubectl wait \
 --for=condition=Ready pod \
 -n monitoring \
 -l app.kubernetes.io/instance=kube-prometheus-stack \
---timeout=900s
+--timeout=900s \
+|| echo "Some monitoring pods not ready yet, continuing..."
 
 
 
