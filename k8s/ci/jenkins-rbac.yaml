@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jenkins-readonly
+  namespace: product-catalog
+rules:
+  - apiGroups: ["", "apps", "networking.k8s.io"]
+    resources:
+      - namespaces
+      - configmaps
+      - secrets
+      - services
+      - persistentvolumeclaims
+      - deployments
+      - ingresses
+      - networkpolicies
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-readonly-binding
+  namespace: product-catalog
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: jenkins
+roleRef:
+  kind: Role
+  name: jenkins-readonly
+  apiGroup: rbac.authorization.k8s.io
