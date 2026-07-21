@@ -118,7 +118,7 @@ spec:
 
     post {
         success {
-            echo "Build ${BUILD_NUMBER} completed successfully. Images tagged product-backend:${BUILD_NUMBER} and product-frontend:${BUILD_NUMBER} (not pushed)."
+            echo "Build ${BUILD_NUMBER} completed successfully. Images anusree15/product-backend:${BUILD_NUMBER} and anusree15/product-frontend:${BUILD_NUMBER} pushed to Docker Hub."
         }
         failure {
             echo "Build ${BUILD_NUMBER} failed — check stage logs above."
