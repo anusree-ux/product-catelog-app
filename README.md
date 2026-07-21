@@ -4,22 +4,20 @@ A cloud-native **Product Catalog Platform** built using **React**, **Flask**, an
 
 ---
 ## 🚀 Features
-- React frontend served with NGINX
+- React frontend served with NGINX (unprivileged)
 - Flask REST API backend
-- PostgreSQL database
-- Dockerized frontend and backend
+- PostgreSQL database with persistent storage
+- Dockerized frontend and backend (multi-stage builds)
 - Kubernetes Deployments and Services
 - NGINX Ingress Controller
 - Persistent Volume for PostgreSQL
 - ConfigMaps and Secrets
-- Kubernetes Network Policies
-- Jenkins CI/CD Pipeline
-- Trivy Security Scanning
+- Kubernetes Network Policies (default-deny with explicit allow rules)
+- Jenkins CI/CD Pipeline (build → push → validate)
 - Docker Hub Image Publishing
 - Prometheus Monitoring
 - Grafana Dashboards
 - Loki + Promtail Centralized Logging
-- Rolling Updates
 - Health Checks (Liveness & Readiness Probes)
 
 ---
@@ -146,6 +144,10 @@ Pipeline stages:
 ---
 # 🐳 Docker Compose
 Run the application locally using the helper script.
+```bash
+cp .env.example environments/local/.env
+# edit environments/local/.env with your own values
+```
 
 Start the application:
 ```bash
