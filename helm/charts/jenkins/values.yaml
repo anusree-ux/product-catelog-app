@@ -1,0 +1,24 @@
+controller:
+  serviceType: NodePort
+  admin:
+    username: admin
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 1Gi
+  installPlugins:
+    - kubernetes:latest
+    - workflow-aggregator:latest
+    - git:latest
+    - configuration-as-code:latest
+    - docker-workflow:latest
+
+persistence:
+  enabled: true
+  size: 4Gi
+
+agent:
+  enabled: true
